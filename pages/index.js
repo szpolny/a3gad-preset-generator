@@ -37,7 +37,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function Home({ router }) {
+function Home() {
   const classes = useStyles();
 
   const [errorDialog, setErrorDialog] = useState(false);
