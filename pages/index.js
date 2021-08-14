@@ -43,12 +43,23 @@ function Home() {
   const [errorDialog, setErrorDialog] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
+  const [successDialog, setSuccessDialog] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
+
   const handleErrorClose = (event, reason) => {
     if (reason === 'clickaway') {
       return;
     }
 
     setErrorDialog(false);
+  };
+
+  const handleSuccessClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+
+    setSuccessDialog(false);
   };
 
   const onFileChange = (e) => {
@@ -103,7 +114,10 @@ function Home() {
         modsList += `@${item.modName}:${item.modId}\n`;
       });
 
-      console.log(modsList);
+      global.navigator.clipboard.writeText(modsList).then(() => {
+        setSuccessMessage('Preset was copied to clipboard!');
+        setSuccessDialog(true);
+      });
     };
 
     reader.readAsBinaryString(file);
@@ -143,6 +157,16 @@ function Home() {
       >
         <Alert onClose={handleErrorClose} severity="error">
           {errorMessage}
+        </Alert>
+      </Snackbar>
+      <Snackbar
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+        open={successDialog}
+        autoHideDuration={2000}
+        onClose={handleSuccessClose}
+      >
+        <Alert onClose={handleSuccessClose} severity="success">
+          {successMessage}
         </Alert>
       </Snackbar>
     </Container>
