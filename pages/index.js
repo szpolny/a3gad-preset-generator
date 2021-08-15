@@ -113,6 +113,8 @@ export default function Home() {
         modsList += `@${item.modName}:${item.modId}\n`;
       });
 
+      console.log(modsList);
+
       global.navigator.clipboard.writeText(modsList).then(() => {
         setSuccessMessage('Copied to clipboard!');
         setSuccessDialog(true);
