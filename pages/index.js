@@ -1,5 +1,4 @@
 import Head from 'next/head';
-import { withRouter } from 'next/router';
 import { useState } from 'react';
 import {
   Box,
@@ -37,7 +36,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function Home() {
+export default function Home() {
   const classes = useStyles();
 
   const [errorDialog, setErrorDialog] = useState(false);
@@ -115,7 +114,7 @@ function Home() {
       });
 
       global.navigator.clipboard.writeText(modsList).then(() => {
-        setSuccessMessage('Preset was copied to clipboard!');
+        setSuccessMessage('Copied to clipboard!');
         setSuccessDialog(true);
       });
     };
@@ -172,5 +171,3 @@ function Home() {
     </Container>
   );
 }
-
-export default withRouter(Home);
