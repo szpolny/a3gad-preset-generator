@@ -1,4 +1,5 @@
 import Head from 'next/head';
+import * as fetch from 'node-fetch';
 import { useState } from 'react';
 import {
   Box,
@@ -34,9 +35,24 @@ const useStyles = makeStyles((theme) => ({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  serverInfo: {
+    textAlign: 'center',
+    marginTop: theme.spacing(7),
+  },
 }));
 
-export default function Home() {
+export async function getServerSideProps() {
+  const res = await fetch(`https://api.battlemetrics.com/servers/12205171`);
+  const serverInfo = await res.json();
+
+  return {
+    props: {
+      serverInfo,
+    },
+  };
+}
+
+export default function Home({ serverInfo }) {
   const classes = useStyles();
 
   const [errorDialog, setErrorDialog] = useState(false);
@@ -44,6 +60,8 @@ export default function Home() {
 
   const [successDialog, setSuccessDialog] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
+
+  const gameServer = serverInfo.data.attributes;
 
   const handleErrorClose = (event, reason) => {
     if (reason === 'clickaway') {
@@ -113,12 +131,20 @@ export default function Home() {
         modsList += `@${item.modName}:${item.modId}\n`;
       });
 
-      console.log(modsList);
-
-      global.navigator.clipboard.writeText(modsList).then(() => {
-        setSuccessMessage('Copied to clipboard!');
-        setSuccessDialog(true);
-      });
+      global.navigator.clipboard.writeText(modsList).then(
+        () => {
+          setSuccessMessage('Copied to clipboard!');
+          setSuccessDialog(true);
+        },
+        (error) => {
+          console.error(error);
+          console.log(modsList);
+          setErrorMessage(
+            'An error occurred while copying. Mod list has been posted in the console (ctrl + shift + i)',
+          );
+          setErrorDialog(true);
+        },
+      );
     };
 
     reader.readAsBinaryString(file);
@@ -144,6 +170,30 @@ export default function Home() {
           Upload File <AddIcon />
           <input onChange={(e) => onFileChange(e)} type="file" hidden />
         </Button>
+        <Box className={classes.serverInfo}>
+          <Typography component="h2" variant="h7">
+            Server Information:
+          </Typography>
+          <p>
+            <span style={{ fontWeight: 'bold' }}>Name:</span> {gameServer.name}
+          </p>
+          <p>
+            <span style={{ fontWeight: 'bold' }}>Address:</span> {gameServer.ip}
+            :{gameServer.port}
+          </p>
+          <p>
+            <span style={{ fontWeight: 'bold' }}>Players:</span>{' '}
+            {gameServer.players}/{gameServer.maxPlayers}
+          </p>
+          <p>
+            <span style={{ fontWeight: 'bold' }}>Mission:</span>{' '}
+            {gameServer.details.mission}
+          </p>
+          <p>
+            <span style={{ fontWeight: 'bold' }}>Map:</span>{' '}
+            {gameServer.details.map}
+          </p>
+        </Box>
       </div>
       <Box className={classes.footer}>
         Created with{' '}
@@ -153,7 +203,7 @@ export default function Home() {
       <Snackbar
         anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
         open={errorDialog}
-        autoHideDuration={2000}
+        autoHideDuration={3500}
         onClose={handleErrorClose}
       >
         <Alert onClose={handleErrorClose} severity="error">
@@ -163,7 +213,7 @@ export default function Home() {
       <Snackbar
         anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
         open={successDialog}
-        autoHideDuration={2000}
+        autoHideDuration={3500}
         onClose={handleSuccessClose}
       >
         <Alert onClose={handleSuccessClose} severity="success">
